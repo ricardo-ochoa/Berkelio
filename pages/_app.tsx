@@ -1,4 +1,5 @@
 import React from "react";
+import Head from "next/head";
 import { ChakraProvider, Image, Container, VStack, Heading, Text, Box, Divider, Stack, AspectRatio,IconButton, Flex, Link } from '@chakra-ui/react';
 import { AppProps } from "next/dist/shared/lib/router/router";
 
@@ -7,8 +8,20 @@ import theme from "../theme"
 
 const App: React.FC<AppProps> = ({ Component, pageProps }) => {
   return (
-   
+        <>
+
+      <Head>
+        <title>Berkelio</title>
+        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+        <meta content="Ochoagram" name="author" />
+        <meta content="Berkelio MX" name="copyright" />
+        <meta property="og:image" content="https://res.cloudinary.com/dnxxkvpiz/image/upload/v1645951268/Berkelio/Logo1_je13l2.jpg" key="image"/>
+        <meta name="twitter:card" content="summary_large_image"/>
+        <meta property="fb:app_id" content="berkeliomx"/>
+      </Head>
+      
       <ChakraProvider theme={theme}>
+
         <Box marginBottom={ 10 }>
           <Container backgroundColor={ "white" } boxShadow="sm" marginTop="-4" maxWidth="container.xl" padding= { 4 } borderBottomRadius={ "2xl" }>
             
@@ -86,7 +99,7 @@ const App: React.FC<AppProps> = ({ Component, pageProps }) => {
           </Container>
         </Box>
       </ChakraProvider>
-    
+      </>
   )
 }
 
