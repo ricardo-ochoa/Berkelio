@@ -97,7 +97,7 @@ const IndexRoute: React.FC<Props> = ({products}) => {
                 isExternal
                 as={Link}
                 colorScheme={'whatsapp'}
-                href={`https://wa.me/9931433105?text=${encodeURIComponent(text)}`}
+                href={`https://wa.me/529931433105?text=${encodeURIComponent(text)}`}
                 leftIcon={<Image src="https://icongr.am/fontawesome/whatsapp.svg?size=32&color=ffffff" alt='whatsapp'/>}
                 width="fit-content"
                 p="4"
