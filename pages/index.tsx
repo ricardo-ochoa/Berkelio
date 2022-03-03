@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { GetStaticProps } from "next";
 
-import { Product } from './product/types';
-import api from './product/api';
+import Product from '../product/types';
+import api from '../product/api';
 import { Stack, Grid, Text, Button, Link, Flex, Image, Badge, Box, Container, useColorModeValue } from '@chakra-ui/react';
 
 import { motion, AnimatePresence, AnimateSharedLayout } from 'framer-motion';
@@ -15,9 +15,9 @@ interface Props {
 }
 
 function parseCurrency(value: number): string {
-  return value.toLocaleString('es-MX',{
-    style: 'currency',
-    currency: 'MXN',
+  return value.toLocaleString("es-MX",{
+    style: "currency",
+    currency: "MXN",
   });
 }
 
