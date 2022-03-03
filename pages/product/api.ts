@@ -3,7 +3,6 @@ import Papa from "papaparse";
 
 import { Product } from "./types";
 
-// eslint-disable-next-line import/no-anonymous-default-export
 export default {
     list: async(): Promise<Product[]> => {
         return axios
@@ -30,5 +29,5 @@ export default {
                     });
                 }),
             );
-    },
+    }
 };
