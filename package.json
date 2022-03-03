@@ -38,7 +38,7 @@
       "allowArrowFunction": false,
       "allowAnonymousClass": false,
       "allowAnonymousFunction": false,
-      "allowCallExpression": false,
+      "allowCallExpression": true,
       "allowObject": true
     }
   ]
