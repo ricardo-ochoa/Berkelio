@@ -9,14 +9,16 @@ const App: React.FC<AppProps> = ({ Component, pageProps }) => {
   return (
    
       <ChakraProvider theme={theme}>
-        <Box marginTop={ 10 }>
-          <Container backgroundColor={ "white" } boxShadow="sm" marginY={ 4 } maxWidth="container.xl" padding= { 4 } borderRadius={ "2xl" }>
+        <Box marginBottom={ 10 }>
+          <Container backgroundColor={ "white" } boxShadow="sm" marginTop="-4" maxWidth="container.xl" padding= { 4 } borderBottomRadius={ "2xl" }>
+            
             <VStack marginBottom={ 10 }>
               
             <Container maxW='2000px' maxH='400px' mb='3rem' p='0' >
               <AspectRatio minH='300px' ratio={16 / 3}>
               <Box
-                borderRadius={ "xl" }
+
+                borderBottomRadius={ "xl" }
                 as='video'
                 autoPlay loop muted
                 src='https://res.cloudinary.com/dnxxkvpiz/video/upload/v1646206789/Berkelio/cover_hzf9rb.mp4'
