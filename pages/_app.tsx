@@ -15,7 +15,8 @@ const App: React.FC<AppProps> = ({ Component, pageProps }) => {
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
         <meta content="Ochoagram" name="author" />
         <meta content="Berkelio MX" name="copyright" />
-        <meta property="og:image" content="https://res.cloudinary.com/dnxxkvpiz/image/upload/v1645951268/Berkelio/Logo1_je13l2.jpg" key="image"/>
+
+        <meta property="og:image" content="https://berkelio.mx/images/image.jpg" key="image"/>
         <meta name="twitter:card" content="summary_large_image"/>
         <meta property="fb:app_id" content="berkeliomx"/>
       </Head>
