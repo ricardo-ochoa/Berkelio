@@ -1,3 +1,4 @@
+/* eslint-disable import/no-anonymous-default-export */
 import axios from "axios";
 import Papa from "papaparse";
 
@@ -13,7 +14,7 @@ export default {
             )
             .then(
                 (response) =>
-                new Promise<Product[]>((resolve, reject) => {
+                new Promise<Product[]>((resolve, _reject) => {
                     Papa.parse(response.data,{
                         header: true,
                         complete: (results) => {
