@@ -1,0 +1,55 @@
+import React, {useState} from "react";
+import {Stack, Button, Text, Image, Flex, Badge} from "@chakra-ui/react";
+
+import {parseCurrency} from "../utils/currency";
+import {Product} from "./types";
+
+import { motion, AnimatePresence, AnimateSharedLayout } from 'framer-motion';
+
+interface Props {
+  product: Product;
+  onAdd: (product: Product) => void;
+}
+
+const ProductCard: React.FC<Props> = ({product, onAdd}) => {
+
+    const [selectedImage, setSelectedImage] = React.useState<string>(null)
+    
+    return (
+            <Stack  spacing={ 3 } key={ product.id } backgroundColor="gray.50"  borderRadius={ "xl" } p={"4"} border='1px' borderColor='gray.200'>
+
+            <Image
+            as={motion.img}
+            cursor="pointer"
+            layoutId={product.image}
+            borderTopRadius="md" maxHeight={200} objectFit="cover"
+            src={product.image} alt={product.title}
+            onClick={() => setSelectedImage(product.image)}
+            />
+
+            <Stack>
+            <Flex alignItems="flex-start" justifyContent="flex-start" mt={-33} ml={-3}>
+            { product.stock === 'Último'
+            ? <Badge position='relative' fontSize='0.7em' colorScheme='red' marginLeft='1rem'> {product.stock} </Badge>
+            : <Badge position='relative' fontSize='0.7em' colorScheme='gray' marginLeft='1rem'> {product.stock} </Badge>
+            } 
+            </Flex>
+            </Stack>
+
+            <Stack spacing={ 3 }>
+            <Text>{product.title}</Text>    
+            <Text color='purple' fontSize="sm" fontWeight="600"> {parseCurrency(product.price)} {"mxn"} </Text>
+            </Stack>
+
+            { product.stock === 'Agotado'
+            ? <Button isDisabled colorScheme="gray"
+            leftIcon={<Image src="https://icongr.am/fontawesome/shopping-cart.svg?size=18&color=1a202c" alt='Lo quiero'/>}> Agregar </Button>
+            : <Button onClick={() => onAdd(product)} colorScheme="primary" border='2px' borderColor='primary.600' 
+            leftIcon={<Image src="https://icongr.am/fontawesome/shopping-cart.svg?size=18&color=ffffff" alt='Lo quiero'/>}> Agregar </Button>
+            } 
+
+            </Stack>
+    );
+  };
+  
+  export default ProductCard;

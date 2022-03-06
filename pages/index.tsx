@@ -1,11 +1,23 @@
 import React, { useState } from 'react'
 import { GetStaticProps } from "next";
 
-import Product from '../product/types';
+import {Product} from '../product/types';
 import api from '../product/api';
-import { Stack, Grid, Text, Button, Link, Flex, Image, Badge, Box, Container, useColorModeValue } from '@chakra-ui/react';
+import { Stack, Grid, Text, Button, Link, Flex, Image, Badge, Box, Container, useColorModeValue,Heading,CloseButton,Divider,
+  Drawer,
+  DrawerBody,
+  DrawerFooter,
+  DrawerHeader,
+  List,
+  ListItem,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton, 
+  HStack} from '@chakra-ui/react';
 
 import { motion, AnimatePresence, AnimateSharedLayout } from 'framer-motion';
+import { createAxisDelta } from 'framer-motion/types/projection/geometry/models';
+import ProductCard from '../product/ProductCard';
 
 
 
@@ -21,141 +33,232 @@ function parseCurrency(value: number): string {
   });
 }
 
+interface CartItem extends Product {
+  quantity: number
+}
+
 const IndexRoute: React.FC<Props> = ({products}) => {
 
-  const [cart, setCart] = React.useState<Product[]>([]);
+  const [cart, setCart] = React.useState<CartItem[]>([]);
+  const [isCartOpen, toggleCart] = React.useState<boolean>(false)
+
   const [selectedImage, setSelectedImage] = React.useState<string>(null)
+
+
+  const total = React.useMemo(
+    () => parseCurrency(cart.reduce((total,product) => total + (product.price * product.quantity), 0,)), [cart]
+  )
 
   const text = React.useMemo(
     () => 
       cart.reduce(
-        (message, product) => message.concat(`* ${product.title} - ${parseCurrency(product.price)}\n mxn`),
+        (message, product) => message.concat(`* ${product.title} - ${parseCurrency(product.price * product.quantity)} mxn \n`),
         ``,
-      ).concat( `\nTotal: ${parseCurrency(cart.reduce((total,product) => total + product.price, 0,))} mxn`),
-      [ cart ],
+      ).concat( `\nTotal: ${total}`),
+      [ cart, total ],
       );
+
+  function handleRemoveFromCart(index: number){
+    setCart((cart) => cart.filter((_, _index) => _index !== index));
+  } 
+
+  function handleEditCart(product: Product, action: 'increment' | 'decrement' ){
+    setCart((cart) => {
+
+      const isIncart = cart.some((item) => item.id === product.id)
+
+      if(!isIncart){
+        return cart.concat({...product, quantity: 1})
+      }
+      
+      return cart.reduce((acc, _product) => {
+          if(product.id !== _product.id){
+            return acc.concat(_product);
+          }
+  
+          if(action === "decrement"){
+            if (_product.quantity === 1) {
+              return acc;
+            }
+
+            return acc.concat({..._product, quantity: _product.quantity -1})
+          } else if(action === "increment" ){
+            return acc.concat({..._product, quantity: _product.quantity +1})
+          }
+  
+      }, []);
+    }
+    )
+  }
 
   return (
     
-    <AnimateSharedLayout>
-        <Stack spacing={ 6 } >
-          <Grid gridGap={ 6 } templateColumns="repeat(auto-fill, minmax(240px, 1fr))">
+    <>
+      <AnimateSharedLayout>
+          <Stack spacing={ 6 } >
+            <Grid gridGap={ 6 } templateColumns="repeat(auto-fill, minmax(240px, 1fr))">
 
-          {products.map((product) => (
+            {products.map((product) => (
 
-          <Stack  spacing={ 3 } key={ product.id } backgroundColor="gray.50"  borderRadius={ "xl" } p={"4"} border='1px' borderColor='gray.200'>
+              <ProductCard
+              key={product.id}
+              product={product}
+              onAdd={(product) => handleEditCart(product, "increment")}
+              />
+              
+            ))}
 
-              <Image
-                as={motion.img}
-                cursor="pointer"
-                layoutId={product.image}
-                borderTopRadius="md" maxHeight={200} objectFit="cover"
-                src={product.image} alt={product.title}
-                onClick={() => setSelectedImage(product.image)}
-                />
+            </Grid>
+            <AnimatePresence>
+              {
+              Boolean(cart.length) && (
+                <Flex 
+                  as={motion.div}
+                  initial={{scale: 0}}
+                  exit={{scale: 0}}
+                  animate={{scale: 1}}
+                  bottom={ 0 }
+                  padding={ 3 }
+                  position="sticky"
+                  alignItems="center" 
+                  justifyContent="center">
 
-            <Stack>
-              <Flex alignItems="flex-start" justifyContent="flex-start" mt={-33} ml={-3}>
-              { product.stock === 'Último'
-                ? <Badge position='relative' fontSize='0.7em' colorScheme='red' marginLeft='1rem'> {product.stock} </Badge>
-                : <Badge position='relative' fontSize='0.7em' colorScheme='gray' marginLeft='1rem'> {product.stock} </Badge>
-              } 
-              </Flex>
-            </Stack>
-            
-            <Stack spacing={ 3 }>
-              <Text>{product.title}</Text>    
-              <Text color='purple' fontSize="sm" fontWeight="600"> {parseCurrency(product.price)} {"mxn"} </Text>
-            </Stack>
+                  <Button
+                  onClick={()=> toggleCart(true)}
+                  colorScheme={'whatsapp'}
+                  
+                  width="fit-content"
+                  p="4"
+                  boxShadow='2xl'
+                  shadow="primary"
+                  size={"lg"}
+                  >
+                    Hacer pedido ({cart.length} Productos)
+                  </Button>
+                </Flex>
+                )
+              }
+            </AnimatePresence>
 
-            { product.stock === 'Agotado'
-                ? <Button onClick={()=> setCart((cart) => cart.concat(product) ) } isDisabled colorScheme="gray" 
-                leftIcon={<Image src="https://icongr.am/fontawesome/shopping-cart.svg?size=18&color=1a202c" alt='Lo quiero'/>}> Agregar </Button>
-                : <Button onClick={()=> setCart((cart) => cart.concat(product) ) } colorScheme="primary" border='2px' borderColor='primary.600' 
-                leftIcon={<Image src="https://icongr.am/fontawesome/shopping-cart.svg?size=18&color=ffffff" alt='Lo quiero'/>}> Agregar </Button>
-            } 
+
+          <Box
+          borderRadius="lg"
+          bg={useColorModeValue('gray.50', 'gray.900')}
+          color={useColorModeValue('gray.700', 'gray.200')}>
+          
+          <Container
+            as={Stack}
+            maxW={'6xl'}
+            py={4}
+            direction={{ base: 'column', md: 'row' }}
+            spacing={4}
+            justify={{ base: 'center', md: 'space-between' }}
+            align={{ base: 'center', md: 'center' }}>
+
+            <Text>© 2022 Berkelio MX. All rights reserved</Text>
+          </Container>
+          </Box>
 
           </Stack>
-          ))}
-
-          </Grid>
           <AnimatePresence>
-            {
-            Boolean(cart.length) && (
-              <Flex 
-                as={motion.div}
-                initial={{scale: 0}}
-                exit={{scale: 0}}
-                animate={{scale: 1}}
-                bottom={ 0 }
-                padding={ 3 }
-                position="sticky"
-                alignItems="center" 
-                justifyContent="center">
+            {selectedImage && (
+              <Flex
+              key="backdrop" 
+              alignItems="center" 
+              justifyContent="center"
 
-                <Button
-                isExternal
-                as={Link}
-                colorScheme={'whatsapp'}
-                href={`https://wa.me/529931433105?text=${encodeURIComponent(text)}`}
-                leftIcon={<Image src="https://icongr.am/fontawesome/whatsapp.svg?size=32&color=ffffff" alt='whatsapp'/>}
-                width="fit-content"
-                p="4"
-                boxShadow='2xl'
-                shadow="primary"
-                size={"lg"}
-                >
-                  Completar pedido ({cart.length} Productos)
-                </Button>
+              as={motion.div} 
+              backgroundColor="rgba(0,0,0,0.7)"
+              layoutId={selectedImage}
+              left={0}
+              position="fixed"
+              top={0}
+              width="100%"
+              height="100%"
+              onClick={() => setSelectedImage(null)}
+              >
+                <Image key="image" src={selectedImage} alt="Detalle de producto"
+                borderRadius={"xl"}/>
               </Flex>
               )
             }
-           </AnimatePresence>
+          </AnimatePresence>
+    </AnimateSharedLayout>
 
+    <Drawer
+        isOpen={isCartOpen}
+        placement='right'
+        onClose={()=> toggleCart(false)} 
+        size="lg"
+      >
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerCloseButton />
+          <DrawerHeader>Tu pedido ({cart.length} Productos)</DrawerHeader>
 
-        <Box
-        borderRadius="lg"
-        bg={useColorModeValue('gray.50', 'gray.900')}
-        color={useColorModeValue('gray.700', 'gray.200')}>
-         
-        <Container
-          as={Stack}
-          maxW={'6xl'}
-          py={4}
-          direction={{ base: 'column', md: 'row' }}
-          spacing={4}
-          justify={{ base: 'center', md: 'space-between' }}
-          align={{ base: 'center', md: 'center' }}>
+          <DrawerBody>
+            <Stack divider={<Divider/>} spacing={4}>
+              {
+                cart.map((product, index) => <Stack key={product.id}>
 
-          <Text>© 2022 Berkelio MX. All rights reserved</Text>
-        </Container>
-        </Box>
+                  <Stack>
 
-        </Stack>
-        <AnimatePresence>
-          {selectedImage && (
-            <Flex
-            key="backdrop" 
-            alignItems="center" 
-            justifyContent="center"
+                    <HStack justifyContent="space-between">
+                      <HStack>
+                        <Image
+                        as={motion.img}
+                        layoutId={product.image}
+                        borderRadius="sm" maxHeight={12} objectFit="cover"
+                        src={product.image} alt={product.title}
+                        />
+                        <Heading as='h6' size='xs'>{product.title} {product.quantity > 1 ? ` (X${product.quantity})` : '' }</Heading>
+                      </HStack>
 
-            as={motion.div} 
-            backgroundColor="rgba(0,0,0,0.7)"
-            layoutId={selectedImage}
-            left={0}
-            position="fixed"
-            top={0}
-            width="100%"
-            height="100%"
-            onClick={() => setSelectedImage(null)}
-            >
-              <Image key="image" src={selectedImage} alt="Detalle de producto"
-              borderRadius={"xl"}/>
-            </Flex>
-            )
-          }
-        </AnimatePresence>
-  </AnimateSharedLayout>
+                      <HStack>
+                        <Text as='em' color="purple">{parseCurrency(product.price * product.quantity)}</Text>
+                    </HStack> 
+                      
+                    </HStack>
+                  </Stack>
+
+                  <HStack>
+                    <Button size="xs" onClick={() => handleEditCart(product, "decrement")}> 
+                    {""}
+                    -{""}
+                    </Button>
+                    <Text>{product.quantity}</Text>
+                    <Button size="xs" onClick={() => handleEditCart(product, "increment")}> 
+                    {""}
+                    +{""}
+                    </Button>
+                  </HStack>
+
+                  </Stack>)
+              }
+            </Stack>
+          </DrawerBody>
+
+          <DrawerFooter>
+            
+            <Button
+                  isExternal
+                  as={Link}
+                  colorScheme={'whatsapp'}
+                  href={`https://wa.me/529931433105?text=${encodeURIComponent(text)}`}
+                  leftIcon={<Image src="https://icongr.am/fontawesome/whatsapp.svg?size=32&color=ffffff" alt='whatsapp'/>}
+                  width="100%"
+                  p="4"
+                  boxShadow='2xl'
+                  shadow="primary"
+                  size={"lg"}
+                  >
+                    Completar pedido ({total} mxn) 
+            </Button>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+      
+    </>
   )
 }
 
