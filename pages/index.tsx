@@ -92,7 +92,6 @@ const IndexRoute: React.FC<Props> = ({products}) => {
   }
 
   return (
-    
     <>
       <AnimateSharedLayout>
           <Stack spacing={ 6 } >
@@ -133,8 +132,9 @@ const IndexRoute: React.FC<Props> = ({products}) => {
                   shadow="primary"
                   size={"lg"}
                   >
-                    Hacer pedido ({cart.length} Productos)
+                    Ver mi pedido ({cart.reduce((acc, item) => acc + item.quantity, 0)} Productos)
                   </Button>
+
                 </Flex>
                 )
               }
@@ -194,7 +194,7 @@ const IndexRoute: React.FC<Props> = ({products}) => {
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
-          <DrawerHeader>Tu pedido ({cart.length} Productos)</DrawerHeader>
+          <DrawerHeader>Tu pedido ({cart.reduce((acc, item) => acc + item.quantity, 0)} Productos)</DrawerHeader>
 
           <DrawerBody>
             <Stack divider={<Divider/>} spacing={4}>
@@ -239,8 +239,25 @@ const IndexRoute: React.FC<Props> = ({products}) => {
           </DrawerBody>
 
           <DrawerFooter>
-            
-            <Button
+
+          { cart.length == 0
+                  ?
+                  <Button
+                  colorScheme="gray"
+                  as={Button}
+                  href={`https://wa.me/529931433105?text=${encodeURIComponent(text)}`}
+                  isDisabled
+                  leftIcon={<Image src="https://icongr.am/fontawesome/whatsapp.svg?size=32&color=1a202c" alt='whatsapp'/>}
+                  width="100%"
+                  p="4"
+                  boxShadow='2xl'
+                  shadow="primary"
+                  size={"lg"}
+                  >
+                    Completar pedido ({total} mxn) 
+                  </Button>
+                  : 
+                  <Button
                   isExternal
                   as={Link}
                   colorScheme={'whatsapp'}
@@ -254,6 +271,8 @@ const IndexRoute: React.FC<Props> = ({products}) => {
                   >
                     Completar pedido ({total} mxn) 
             </Button>
+                  } 
+
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
