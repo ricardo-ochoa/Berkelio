@@ -2,7 +2,7 @@
 import axios from "axios";
 import Papa from "papaparse";
 
-import Product from "./types";
+import {Product} from "./types";
 
 export default {
   list: async (): Promise<Product[]> => {
