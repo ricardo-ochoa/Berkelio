@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { GetStaticProps } from "next";
 
 import {Product} from '../product/types';
@@ -8,8 +8,6 @@ import { Stack, Grid, Text, Button, Link, Flex, Image, Badge, Box, Container, us
   DrawerBody,
   DrawerFooter,
   DrawerHeader,
-  List,
-  ListItem,
   DrawerOverlay,
   DrawerContent,
   DrawerCloseButton, 
@@ -18,6 +16,7 @@ import { Stack, Grid, Text, Button, Link, Flex, Image, Badge, Box, Container, us
 import { motion, AnimatePresence, AnimateSharedLayout } from 'framer-motion';
 import { createAxisDelta } from 'framer-motion/types/projection/geometry/models';
 import ProductCard from '../product/ProductCard';
+import { stringify } from 'querystring';
 
 
 
@@ -37,12 +36,24 @@ interface CartItem extends Product {
   quantity: number
 }
 
+
 const IndexRoute: React.FC<Props> = ({products}) => {
 
   const [cart, setCart] = React.useState<CartItem[]>([]);
   const [isCartOpen, toggleCart] = React.useState<boolean>(false)
 
-  const [selectedImage, setSelectedImage] = React.useState<string>(null)
+  useEffect(() => {
+    setCart(JSON.parse(localStorage.getItem('Cart')) || [])
+    console.log('oli')
+  }, [])
+  
+
+
+  useEffect(() => {
+    localStorage.setItem('Cart', JSON.stringify(cart))
+  }, [cart])
+  
+
 
 
   const total = React.useMemo(
@@ -56,39 +67,39 @@ const IndexRoute: React.FC<Props> = ({products}) => {
         ``,
       ).concat( `\nTotal: ${total}`),
       [ cart, total ],
-      );
+  );
 
-  function handleRemoveFromCart(index: number){
-    setCart((cart) => cart.filter((_, _index) => _index !== index));
-  } 
+  
 
   function handleEditCart(product: Product, action: 'increment' | 'decrement' ){
-    setCart((cart) => {
 
-      const isIncart = cart.some((item) => item.id === product.id)
+      setCart((cart) => {
 
-      if(!isIncart){
-        return cart.concat({...product, quantity: 1})
-      }
-      
-      return cart.reduce((acc, _product) => {
-          if(product.id !== _product.id){
-            return acc.concat(_product);
-          }
+        
   
-          if(action === "decrement"){
-            if (_product.quantity === 1) {
-              return acc;
+        const isIncart = cart.some((item) => item.id === product.id)
+  
+        if(!isIncart){
+          return cart.concat({...product, quantity: 1})
+        }
+        
+        return cart.reduce((acc, _product) => {
+            if(product.id !== _product.id){
+              return acc.concat(_product);
             }
-
-            return acc.concat({..._product, quantity: _product.quantity -1})
-          } else if(action === "increment" ){
-            return acc.concat({..._product, quantity: _product.quantity +1})
-          }
+    
+            if(action === "decrement"){
+              if (_product.quantity === 1) {
+                return acc;
+              }
   
-      }, []);
-    }
-    )
+              return acc.concat({..._product, quantity: _product.quantity -1})
+            } else if(action === "increment" ){
+              return acc.concat({..._product, quantity: _product.quantity +1})
+            }
+    
+        }, [] );
+      })
   }
 
   return (
@@ -160,29 +171,7 @@ const IndexRoute: React.FC<Props> = ({products}) => {
           </Box>
 
           </Stack>
-          <AnimatePresence>
-            {selectedImage && (
-              <Flex
-              key="backdrop" 
-              alignItems="center" 
-              justifyContent="center"
 
-              as={motion.div} 
-              backgroundColor="rgba(0,0,0,0.7)"
-              layoutId={selectedImage}
-              left={0}
-              position="fixed"
-              top={0}
-              width="100%"
-              height="100%"
-              onClick={() => setSelectedImage(null)}
-              >
-                <Image key="image" src={selectedImage} alt="Detalle de producto"
-                borderRadius={"xl"}/>
-              </Flex>
-              )
-            }
-          </AnimatePresence>
     </AnimateSharedLayout>
 
     <Drawer

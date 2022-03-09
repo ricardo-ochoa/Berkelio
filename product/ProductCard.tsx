@@ -16,6 +16,8 @@ const ProductCard: React.FC<Props> = ({product, onAdd}) => {
     const [selectedImage, setSelectedImage] = React.useState<string>(null)
     
     return (
+
+      <AnimateSharedLayout>
             <Stack  spacing={ 3 } key={ product.id } backgroundColor="gray.50"  borderRadius={ "xl" } p={"4"} border='1px' borderColor='gray.200'>
 
             <Image
@@ -49,6 +51,34 @@ const ProductCard: React.FC<Props> = ({product, onAdd}) => {
             } 
 
             </Stack>
+
+
+          <AnimatePresence>
+            {selectedImage && (
+              <Flex
+              key="backdrop" 
+              alignItems="center" 
+              justifyContent="center"
+              zIndex={9999}
+
+              as={motion.div} 
+              backgroundColor="rgba(0,0,0,0.7)"
+              layoutId={selectedImage}
+              left={0}
+              position="fixed"
+              top={0}
+              width="100%"
+              height="100%"
+              onClick={() => setSelectedImage(null)}
+              >
+                <Image key="image" src={selectedImage} alt="Detalle de producto"
+                borderRadius={"xl"}/>
+              </Flex>
+              )
+            }
+          </AnimatePresence>
+
+      </AnimateSharedLayout>
     );
   };
   
