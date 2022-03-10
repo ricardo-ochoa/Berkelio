@@ -42,19 +42,16 @@ const IndexRoute: React.FC<Props> = ({products}) => {
   const [cart, setCart] = React.useState<CartItem[]>([]);
   const [isCartOpen, toggleCart] = React.useState<boolean>(false)
 
+
   useEffect(() => {
     setCart(JSON.parse(localStorage.getItem('Cart')) || [])
     console.log('oli')
   }, [])
-  
-
 
   useEffect(() => {
     localStorage.setItem('Cart', JSON.stringify(cart))
   }, [cart])
   
-
-
 
   const total = React.useMemo(
     () => parseCurrency(cart.reduce((total,product) => total + (product.price * product.quantity), 0,)), [cart]
